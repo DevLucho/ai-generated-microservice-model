@@ -5,6 +5,9 @@ import com.techcorp.authapp.dto.LoginRequestDto;
 import com.techcorp.authapp.dto.UserRegistrationDto;
 import com.techcorp.authapp.model.SystemUser;
 import com.techcorp.authapp.service.AuthenticationService;
+import com.techcorp.authapp.service.UserNotFoundException;
+import com.techcorp.authapp.service.InvalidCredentialsException;
+import com.techcorp.authapp.service.UserAlreadyExistsException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -110,6 +113,13 @@ public class UserAuthenticationController {
             
             return new ResponseEntity<>(response, HttpStatus.OK);
             
+        } catch (UserAlreadyExistsException e) {
+            ApiResponseDto<Map<String, Object>> errorResponse = new ApiResponseDto<>(
+                false, 
+                e.getMessage()
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+            
         } catch (RuntimeException e) {
             ApiResponseDto<Map<String, Object>> errorResponse = new ApiResponseDto<>(
                 false, 
@@ -196,6 +206,20 @@ public class UserAuthenticationController {
             
             return new ResponseEntity<>(response, HttpStatus.OK);
             
+        } catch (UserNotFoundException e) {
+            ApiResponseDto<Map<String, Object>> errorResponse = new ApiResponseDto<>(
+                false, 
+                e.getMessage()
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+            
+        } catch (InvalidCredentialsException e) {
+            ApiResponseDto<Map<String, Object>> errorResponse = new ApiResponseDto<>(
+                false, 
+                e.getMessage()
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+            
         } catch (RuntimeException e) {
             ApiResponseDto<Map<String, Object>> errorResponse = new ApiResponseDto<>(
                 false, 
@@ -203,12 +227,17 @@ public class UserAuthenticationController {
             );
             
             // TC006: Usuario no encontrado - HTTP 404
-            if (e.getMessage().contains("User not found") || e.getMessage().contains("Usuario no encontrado")) {
+            if (e.getMessage().contains("Usuario no encontrado")) {
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
             }
             
-            // TC005: Credenciales inválidas - HTTP 401  
-            return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+            // TC005: Credenciales inválidas - HTTP 401
+            if (e.getMessage().contains("Credenciales inválidas")) {
+                return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+            }
+            
+            // Error por defecto - HTTP 400
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
     }
     
@@ -251,8 +280,8 @@ public class UserAuthenticationController {
     @PostMapping("/logout")
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<ApiResponseDto<Void>> logoutUser(
-            @Parameter(description = "Token JWT en el header Authorization", required = true)
-            @RequestHeader("Authorization") String authorizationHeader) {
+            @Parameter(description = "Token JWT en el header Authorization", required = false)
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
         
         try {
             // TC009: Validar que el header Authorization esté presente

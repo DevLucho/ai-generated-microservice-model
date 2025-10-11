@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techcorp.authapp.config.TestSecurityConfig;
 import com.techcorp.authapp.dto.LoginRequestDto;
 import com.techcorp.authapp.service.AuthenticationService;
+import com.techcorp.authapp.service.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -55,9 +56,9 @@ class TC006UserNotFoundTest {
             // Reset mock específico para esta clase nested
             reset(authenticationService);
             
-            // Configure mock to throw IllegalArgumentException for user not found
-            when(authenticationService.authenticateUser(any(LoginRequestDto.class)))
-                .thenThrow(new IllegalArgumentException("Usuario no encontrado"));
+            // Configure mock to throw UserNotFoundException for user not found
+            when(authenticationService.authenticateUser(any()))
+                .thenThrow(new UserNotFoundException("Usuario no encontrado"));
         }
 
         @Test
@@ -87,7 +88,7 @@ class TC006UserNotFoundTest {
             loginRequest.setUsername("noexiste.usuario");
             loginRequest.setPassword("password123");
 
-            when(authenticationService.authenticateUser(any(LoginRequestDto.class)))
+            when(authenticationService.authenticateUser(any()))
                 .thenThrow(new RuntimeException("Usuario no encontrado"));
 
             // Act & Assert: Verificar mensaje específico en español
@@ -114,7 +115,7 @@ class TC006UserNotFoundTest {
             loginRequest.setUsername("notfound.user");
             loginRequest.setPassword("testpassword");
 
-            when(authenticationService.authenticateUser(any(LoginRequestDto.class)))
+            when(authenticationService.authenticateUser(any()))
                 .thenThrow(new RuntimeException("Usuario no encontrado"));
 
             // Act & Assert: Validar estructura completa de respuesta
@@ -147,7 +148,7 @@ class TC006UserNotFoundTest {
         @DisplayName("TC006.004 - Debe manejar diferentes formatos de usernames inexistentes")
         void testLoginUser_WhenDifferentNonExistentUsers_AllReturn404() throws Exception {
             // Arrange: Configurar mock una sola vez
-            when(authenticationService.authenticateUser(any(LoginRequestDto.class)))
+            when(authenticationService.authenticateUser(any()))
                 .thenThrow(new RuntimeException("Usuario no encontrado"));
 
             // Diferentes formatos de usernames que no existen (únicos para evitar coincidencias)
@@ -185,9 +186,9 @@ class TC006UserNotFoundTest {
             // Reset mock específico para esta clase nested
             reset(authenticationService);
             
-            // Configure mock to throw IllegalArgumentException for user not found
-            when(authenticationService.authenticateUser(any(LoginRequestDto.class)))
-                .thenThrow(new IllegalArgumentException("Usuario no encontrado"));
+            // Configure mock to throw UserNotFoundException for user not found
+            when(authenticationService.authenticateUser(any()))
+                .thenThrow(new UserNotFoundException("Usuario no encontrado"));
         }
 
         @Test
@@ -199,7 +200,7 @@ class TC006UserNotFoundTest {
             loginRequest.setPassword("password123");
 
             // Simular usuario inexistente
-            when(authenticationService.authenticateUser(any(LoginRequestDto.class)))
+            when(authenticationService.authenticateUser(any()))
                 .thenThrow(new RuntimeException("Usuario no encontrado"));
 
             // Act & Assert: Debe ser específico para usuario inexistente
@@ -222,7 +223,7 @@ class TC006UserNotFoundTest {
         @DisplayName("TC006.006 - Debe manejar correctamente case sensitivity en username inexistente")
         void testLoginUser_WhenCaseSensitiveNonExistentUser_Returns404() throws Exception {
             // Arrange: Configurar mock una sola vez
-            when(authenticationService.authenticateUser(any(LoginRequestDto.class)))
+            when(authenticationService.authenticateUser(any()))
                 .thenThrow(new RuntimeException("Usuario no encontrado"));
 
             // Usernames inexistentes con diferentes casos (únicos para evitar coincidencias)
@@ -255,7 +256,7 @@ class TC006UserNotFoundTest {
             loginRequest.setUsername("hacker.attempt.notreal");
             loginRequest.setPassword("tryingtohack");
 
-            when(authenticationService.authenticateUser(any(LoginRequestDto.class)))
+            when(authenticationService.authenticateUser(any()))
                 .thenThrow(new RuntimeException("Usuario no encontrado"));
 
             // Act & Assert: Verificar mensaje seguro
@@ -280,7 +281,7 @@ class TC006UserNotFoundTest {
         @DisplayName("TC006.008 - Debe manejar usernames con caracteres especiales inexistentes")
         void testLoginUser_WhenSpecialCharactersInNonExistentUser_Returns404() throws Exception {
             // Arrange: Configurar mock una sola vez
-            when(authenticationService.authenticateUser(any(LoginRequestDto.class)))
+            when(authenticationService.authenticateUser(any()))
                 .thenThrow(new RuntimeException("Usuario no encontrado"));
 
             // Usernames inexistentes con caracteres especiales (únicos para evitar coincidencias)

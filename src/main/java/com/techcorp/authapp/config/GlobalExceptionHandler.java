@@ -1,6 +1,9 @@
 package com.techcorp.authapp.config;
 
 import com.techcorp.authapp.dto.ErrorResponseDto;
+import com.techcorp.authapp.service.UserAlreadyExistsException;
+import com.techcorp.authapp.service.UserNotFoundException;
+import com.techcorp.authapp.service.InvalidCredentialsException;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +49,63 @@ public class GlobalExceptionHandler {
         );
         
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+    
+    /**
+     * Maneja errores cuando un usuario ya existe en el sistema
+     */
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handleUserAlreadyExistsException(
+            UserAlreadyExistsException ex, WebRequest request) {
+        
+        ErrorResponseDto errorResponse = new ErrorResponseDto(
+            HttpStatus.CONFLICT.value(),
+            "User Already Exists",
+            ex.getMessage(),
+            request.getDescription(false).replace("uri=", ""),
+            null,
+            generateErrorId()
+        );
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+    
+    /**
+     * Maneja errores cuando un usuario no se encuentra
+     */
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleUserNotFoundException(
+            UserNotFoundException ex, WebRequest request) {
+        
+        ErrorResponseDto errorResponse = new ErrorResponseDto(
+            HttpStatus.NOT_FOUND.value(),
+            "User Not Found",
+            ex.getMessage(),
+            request.getDescription(false).replace("uri=", ""),
+            null,
+            generateErrorId()
+        );
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+    
+    /**
+     * Maneja errores de credenciales inválidas
+     */
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidCredentialsException(
+            InvalidCredentialsException ex, WebRequest request) {
+        
+        ErrorResponseDto errorResponse = new ErrorResponseDto(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Invalid Credentials",
+            ex.getMessage(),
+            request.getDescription(false).replace("uri=", ""),
+            null,
+            generateErrorId()
+        );
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
     
     /**

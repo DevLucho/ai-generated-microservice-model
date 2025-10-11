@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techcorp.authapp.config.TestSecurityConfig;
 import com.techcorp.authapp.dto.LoginRequestDto;
 import com.techcorp.authapp.service.AuthenticationService;
+import com.techcorp.authapp.service.InvalidCredentialsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -49,9 +50,13 @@ class TC005InvalidPasswordTest {
             // Reset mock before each test to ensure clean state
             reset(authenticationService);
             
-            // Configure mock to throw IllegalArgumentException for authentication failures
-            when(authenticationService.authenticateUser(any(LoginRequestDto.class)))
-                .thenThrow(new IllegalArgumentException("Credenciales inválidas"));
+            // Configure mock to throw InvalidCredentialsException for ANY authentication call
+            when(authenticationService.authenticateUser(any()))
+                .thenThrow(new InvalidCredentialsException("Credenciales inválidas"));
+            
+            // Also configure register to work normally (mock it to avoid side effects)
+            when(authenticationService.registerNewUser(any()))
+                .thenThrow(new RuntimeException("No register calls expected in these tests"));
         }
 
         @Test

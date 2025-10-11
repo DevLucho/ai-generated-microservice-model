@@ -31,7 +31,7 @@ public class AuthenticationService {
     public SystemUser registerNewUser(UserRegistrationDto registrationDto) {
         if (userRepository.existsByUsername(registrationDto.getUsername())) {
             // TC002: Mensaje en español para usuario duplicado
-            throw new RuntimeException("Nombre de usuario ya registrado");
+            throw new UserAlreadyExistsException("Nombre de usuario ya registrado");
         }
         
         String userId = UUID.randomUUID().toString();
@@ -53,11 +53,11 @@ public class AuthenticationService {
     public String authenticateUser(LoginRequestDto loginRequest) {
         // TC006: Verificar si el usuario existe primero
         SystemUser user = userRepository.findByUsername(loginRequest.getUsername())
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
         
         // TC005: Verificar contraseña después de confirmar que el usuario existe
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getEncodedPassword())) {
-            throw new RuntimeException("Credenciales inválidas");
+            throw new InvalidCredentialsException("Credenciales inválidas");
         }
         
         if (!user.isAccountActive()) {

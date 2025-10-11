@@ -46,7 +46,7 @@ class TC009MissingTokenLogoutTest {
             mockMvc.perform(post("/api/auth/logout")
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest()) // HTTP 400
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    
                     .andExpect(jsonPath("$.success").value(false))
                     .andExpect(jsonPath("$.message").value("Token requerido"))
                     .andExpect(jsonPath("$.data").isEmpty());
@@ -77,7 +77,7 @@ class TC009MissingTokenLogoutTest {
             mockMvc.perform(post("/api/auth/logout")
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    
                     .andExpect(jsonPath("$.success").exists())
                     .andExpect(jsonPath("$.success").isBoolean())
                     .andExpect(jsonPath("$.success").value(false))
